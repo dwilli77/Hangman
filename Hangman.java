@@ -1,27 +1,66 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Random;
 
 public class Hangman {
 
+  BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
   String[] choices = {"washington", "adams", "jefferson", "madison", "monroe", "jackson", "harrison", "tyler", "polk", "taylor", "fillmore", "pierce", "buchanan", "lincoln", "johnson", "grant", "hayes", "garfield", "arthur", "cleveland", "mckinley", "roosevelt", "taft", "wilson", "harding", "coolidge", "hoover", "truman", "eisenhower", "kennedy", "nixon", "ford", "carter", "reagan", "bush", "clinton", "obama", "trump"};
 
-  int guesses = 6;
+  int guessesLeft = 6;
+  int correctGuesses = 0;
 
   String word = "";
   String display = "";
+
+  Word wordObj;
 
   public void chooseWord(String[] choices){
     Random rand = new Random();
     int randomIndex = rand.nextInt(38);
     word = choices[randomIndex];
   }
-  public static void main(String[] args){
-    var game = new Hangman();
-    game.chooseWord(game.choices);
-    Word wordObj = new Word(game.word);
+
+  public void initializeGame(Hangman obj){
+    obj.chooseWord(obj.choices);
+    wordObj = new Word(obj.word);
     wordObj.populateArr();
     String display = wordObj.buildDisplay();
     System.out.println("Your word is: " + display);
-    System.out.println(game.word);
+    System.out.println(obj.word);
+  }
+
+  public void displayResult(String a){
+    if (a.equals("win")){
+      System.out.println("Good job, you won!");
+    }
+    if (a.equals("lose")){
+      System.out.println("Sorry, you lost");
+    }
+  }
+
+  public void promptGuess() throws IOException {
+    if (correctGuesses == word.length()){
+      displayResult("win");
+    } else if (guessesLeft == 0){
+      displayResult("lose");
+    } else {
+      System.out.print("Guess a letter: ");
+      String userGuess = reader.readLine();
+      if (userGuess.length() != 1){
+        System.out.println("Invalid Guess - try again");
+        promptGuess();
+      } else {
+        System.out.println("good guess");
+      }
+    }
+  }
+  public static void main(String[] args) throws IOException {
+    var game = new Hangman();
+    game.initializeGame(game);
+    game.promptGuess();
   }
 }
 
