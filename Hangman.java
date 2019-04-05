@@ -23,13 +23,14 @@ public class Hangman {
     word = choices[randomIndex];
   }
 
-  public void initializeGame(Hangman obj){
+  public void initializeGame(Hangman obj) throws IOException{
     obj.chooseWord(obj.choices);
     wordObj = new Word(obj.word);
     wordObj.populateArr();
-    String display = wordObj.buildDisplay();
+    display = wordObj.buildDisplay();
     System.out.println("Your word is: " + display);
-    System.out.println(obj.word);
+    
+    promptGuess();
   }
 
   public void displayResult(String a){
@@ -38,11 +39,12 @@ public class Hangman {
     }
     if (a.equals("lose")){
       System.out.println("Sorry, you lost");
+      System.out.println("The correct word was " + word);
     }
   }
 
   public void promptGuess() throws IOException {
-    if (correctGuesses == word.length()){
+    if (display.indexOf("_") == -1){
       displayResult("win");
     } else if (guessesLeft == 0){
       displayResult("lose");
@@ -50,17 +52,46 @@ public class Hangman {
       System.out.print("Guess a letter: ");
       String userGuess = reader.readLine();
       if (userGuess.length() != 1){
+        System.out.println();
         System.out.println("Invalid Guess - try again");
+        System.out.println();
         promptGuess();
       } else {
-        System.out.println("good guess");
+        System.out.println();
+        wordObj.guess(userGuess.toLowerCase());
+        String newDisplay = wordObj.buildDisplay();
+        checkScore(newDisplay, display);
+        System.out.println("Your word is: " + display);
+        promptGuess();
       }
+    }
+  }
+
+  public void checkScore(String newStr, String oldStr){
+    int oldDashCount = 0;
+    int newDashCount = 0;
+
+    for (int i = 0; i < oldStr.length(); i++){
+      if(Character.toString(oldStr.charAt(i)).equals("_")){
+        oldDashCount++;
+      }
+    }
+    for (int i = 0; i < newStr.length(); i++){
+      if(Character.toString(newStr.charAt(i)).equals("_")){
+        newDashCount++;
+      }
+    }
+    if(newDashCount < oldDashCount){
+      display = newStr;
+    } else {
+      guessesLeft--;
+      System.out.println("Wrong, remaining guesses: "+ guessesLeft);
     }
   }
   public static void main(String[] args) throws IOException {
     var game = new Hangman();
     game.initializeGame(game);
-    game.promptGuess();
+    
   }
 }
 
